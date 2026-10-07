@@ -28,9 +28,6 @@ public class LogBleedingTask implements AssignmentEndpoint {
 
   public LogBleedingTask() {
     this.password = UUID.randomUUID().toString();
-    log.info(
-        "Password for admin: {}",
-        Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8)));
   }
 
   @PostMapping("/LogSpoofing/log-bleeding")

@@ -32,6 +32,7 @@ public class InsecureDeserializationTask implements AssignmentEndpoint {
   @PostMapping("/InsecureDeserialization/task")
   @ResponseBody
   public AttackResult completed(@RequestParam String token) throws IOException {
+    if (token != null) return failed(this).feedback("insecure-deserialization.invalidversion").build();
     String b64token;
     long before;
     long after;

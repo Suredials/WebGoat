@@ -32,7 +32,7 @@ public class ClientSideFilteringFreeAssignment implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(@RequestParam String checkoutCode) {
     if (SUPER_COUPON_CODE.equals(checkoutCode)) {
-      return success(this).build();
+      return failed(this).build();
     }
     return failed(this).build();
   }

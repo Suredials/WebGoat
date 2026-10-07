@@ -59,6 +59,6 @@ public class BypassRestrictionsFrontendValidation implements AssignmentEndpoint 
     if (field7.matches(regex7)) {
       return failed(this).build();
     }
-    return success(this).build();
+    return failed(this).build();
   }
 }

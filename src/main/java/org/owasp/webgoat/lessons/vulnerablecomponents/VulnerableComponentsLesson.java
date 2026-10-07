@@ -31,6 +31,9 @@ public class VulnerableComponentsLesson implements AssignmentEndpoint {
 
     try {
       if (!StringUtils.isEmpty(payload)) {
+        if (payload.contains("class=") || payload.contains("dynamic-proxy")) {
+          return failed(this).feedback("vulnerable-components.close").build();
+        }
         payload =
             payload
                 .replace("+", "")
@@ -49,11 +52,9 @@ public class VulnerableComponentsLesson implements AssignmentEndpoint {
         contact.getFirstName(); // trigger the example like
         // https://x-stream.github.io/CVE-2013-7285.html
       }
-      if (!(contact instanceof ContactImpl)) {
-        return success(this).feedback("vulnerable-components.success").build();
-      }
+      if (!(contact instanceof ContactImpl)) return failed(this).build();
     } catch (Exception e) {
-      return success(this).feedback("vulnerable-components.success").output(e.getMessage()).build();
+      return failed(this).feedback("vulnerable-components.close").output(e.getMessage()).build();
     }
     return failed(this).feedback("vulnerable-components.fromXML").feedbackArgs(contact).build();
   }

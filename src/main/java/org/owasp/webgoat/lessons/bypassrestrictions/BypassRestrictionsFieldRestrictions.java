@@ -40,6 +40,6 @@ public class BypassRestrictionsFieldRestrictions implements AssignmentEndpoint {
     if ("change".equals(readOnlyInput)) {
       return failed(this).build();
     }
-    return success(this).build();
+    return failed(this).build();
   }
 }

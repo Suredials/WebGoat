@@ -19,7 +19,7 @@ public class InsecureLoginTask implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(@RequestParam String username, @RequestParam String password) {
     if ("CaptainJack".equals(username) && "BlackPearl".equals(password)) {
-      return success(this).build();
+      return failed(this).build();
     }
     return failed(this).build();
   }

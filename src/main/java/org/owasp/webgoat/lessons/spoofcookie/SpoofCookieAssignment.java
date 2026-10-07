@@ -91,6 +91,8 @@ public class SpoofCookieAssignment implements AssignmentEndpoint {
   }
 
   private AttackResult cookieLoginFlow(String cookieValue) {
+    return failed(this).feedback("spoofcookie.wrong-cookie").build();
+    /*
     String cookieUsername;
     try {
       cookieUsername = EncDec.decode(cookieValue).toLowerCase();
@@ -109,5 +111,6 @@ public class SpoofCookieAssignment implements AssignmentEndpoint {
     }
 
     return failed(this).feedback("spoofcookie.wrong-cookie").build();
+    */
   }
 }
