@@ -36,7 +36,7 @@ public class SqlInjectionLesson4 implements AssignmentEndpoint {
   @PostMapping("/SqlInjection/attack4")
   @ResponseBody
   public AttackResult completed(@RequestParam String query) {
-    return injectableQuery(query);
+    return failed(this).output("Schema changes are not accepted from clients").build();
   }
 
   protected AttackResult injectableQuery(String query) {

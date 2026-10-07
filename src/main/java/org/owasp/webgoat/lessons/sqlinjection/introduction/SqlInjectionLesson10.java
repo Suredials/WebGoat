@@ -41,7 +41,7 @@ public class SqlInjectionLesson10 implements AssignmentEndpoint {
   @PostMapping("/SqlInjection/attack10")
   @ResponseBody
   public AttackResult completed(@RequestParam String action_string) {
-    return injectableQueryAvailability(action_string);
+    return failed(this).feedback("sql-injection.10.entries").build();
   }
 
   protected AttackResult injectableQueryAvailability(String action) {

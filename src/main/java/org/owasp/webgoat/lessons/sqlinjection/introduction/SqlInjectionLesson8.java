@@ -41,7 +41,7 @@ public class SqlInjectionLesson8 implements AssignmentEndpoint {
   @PostMapping("/SqlInjection/attack8")
   @ResponseBody
   public AttackResult completed(@RequestParam String name, @RequestParam String auth_tan) {
-    return injectableQueryConfidentiality(name, auth_tan);
+    return failed(this).feedback("sql-injection.8.no.results").build();
   }
 
   protected AttackResult injectableQueryConfidentiality(String name, String auth_tan) {

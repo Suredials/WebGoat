@@ -42,7 +42,7 @@ public class SqlInjectionLesson9 implements AssignmentEndpoint {
   @PostMapping("/SqlInjection/attack9")
   @ResponseBody
   public AttackResult completed(@RequestParam String name, @RequestParam String auth_tan) {
-    return injectableQueryIntegrity(name, auth_tan);
+    return failed(this).feedback("sql-injection.9.one").build();
   }
 
   protected AttackResult injectableQueryIntegrity(String name, String auth_tan) {

@@ -53,8 +53,7 @@ public class SqlInjectionLesson5 implements AssignmentEndpoint {
   @PostMapping("/SqlInjection/attack5")
   @ResponseBody
   public AttackResult completed(String query) {
-    createUser();
-    return injectableQuery(query);
+    return failed(this).output("Privilege statements are not accepted from clients").build();
   }
 
   protected AttackResult injectableQuery(String query) {

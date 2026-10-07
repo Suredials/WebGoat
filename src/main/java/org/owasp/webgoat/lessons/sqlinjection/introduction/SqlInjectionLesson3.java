@@ -35,7 +35,7 @@ public class SqlInjectionLesson3 implements AssignmentEndpoint {
   @PostMapping("/SqlInjection/attack3")
   @ResponseBody
   public AttackResult completed(@RequestParam String query) {
-    return injectableQuery(query);
+    return failed(this).output("Arbitrary SQL statements are not accepted").build();
   }
 
   protected AttackResult injectableQuery(String query) {

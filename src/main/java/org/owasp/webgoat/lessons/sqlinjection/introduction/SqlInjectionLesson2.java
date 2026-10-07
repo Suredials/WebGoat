@@ -40,7 +40,7 @@ public class SqlInjectionLesson2 implements AssignmentEndpoint {
   @PostMapping("/SqlInjection/attack2")
   @ResponseBody
   public AttackResult completed(@RequestParam String query) {
-    return injectableQuery(query);
+    return failed(this).feedback("sql-injection.2.failed").build();
   }
 
   protected AttackResult injectableQuery(String query) {
