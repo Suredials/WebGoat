@@ -75,6 +75,10 @@ public class ForgedReviews implements AssignmentEndpoint {
       String validateReq,
       HttpServletRequest request,
       @CurrentUsername String username) {
+    if (request.getHeader("referer") == null
+        || !request.getHeader("referer").contains(request.getHeader("host"))) {
+      return failed(this).feedback("csrf-same-host").build();
+    }
     final String host = (request.getHeader("host") == null) ? "NULL" : request.getHeader("host");
     final String referer =
         (request.getHeader("referer") == null) ? "NULL" : request.getHeader("referer");

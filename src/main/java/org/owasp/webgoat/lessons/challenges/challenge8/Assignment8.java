@@ -43,7 +43,7 @@ public class Assignment8 implements AssignmentEndpoint {
       @PathVariable(value = "stars") int nrOfStars, HttpServletRequest request) {
     // Simple implementation of VERB Based Authentication
     String msg = "";
-    if (request.getMethod().equals("GET")) {
+    if (request.getMethod().equals("GET") || request.getMethod().equals("HEAD")) {
       var json =
           Map.of("error", true, "message", "Sorry but you need to login first in order to vote");
       return ResponseEntity.status(200).body(json);

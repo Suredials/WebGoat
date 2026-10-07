@@ -63,14 +63,6 @@ public class Assignment7 implements AssignmentEndpoint {
 
   @GetMapping("/challenge/7/reset-password/{link}")
   public ResponseEntity<String> resetPassword(@PathVariable(value = "link") String link) {
-    if (link.equals(ADMIN_PASSWORD_LINK)) {
-      return ResponseEntity.accepted()
-          .body(
-              "<h1>Success!!</h1>"
-                  + "<img src='/WebGoat/images/hi-five-cat.jpg'>"
-                  + "<br/><br/>Here is your flag: "
-                  + flags.getFlag(7));
-    }
     return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT)
         .body("That is not the reset link for admin");
   }
@@ -79,6 +71,9 @@ public class Assignment7 implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult sendPasswordResetLink(@RequestParam String email, HttpServletRequest request)
       throws URISyntaxException {
+    if (email.equalsIgnoreCase("admin@webgoat-cloud.org")) {
+      return org.owasp.webgoat.container.assignments.AttackResultBuilder.failed(this).build();
+    }
     if (StringUtils.hasText(email)) {
       String username = email.substring(0, email.indexOf("@"));
       if (StringUtils.hasText(username)) {

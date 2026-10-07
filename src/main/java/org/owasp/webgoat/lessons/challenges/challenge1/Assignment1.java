@@ -28,6 +28,9 @@ public class Assignment1 implements AssignmentEndpoint {
   @PostMapping("/challenge/1")
   @ResponseBody
   public AttackResult completed(@RequestParam String username, @RequestParam String password) {
+    if ("admin".equals(username)) {
+      return failed(this).build();
+    }
     boolean ipAddressKnown = true;
     boolean passwordCorrect =
         "admin".equals(username)

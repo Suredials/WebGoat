@@ -43,6 +43,10 @@ public class CSRFFeedback implements AssignmentEndpoint {
       produces = {"application/json"})
   @ResponseBody
   public AttackResult completed(HttpServletRequest request, @RequestBody String feedback) {
+    if (request.getContentType() != null
+        && request.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)) {
+      return failed(this).build();
+    }
     try {
       objectMapper.enable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
       objectMapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);

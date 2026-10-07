@@ -29,6 +29,11 @@ public class CSRFGetFlag {
   public Map<String, Object> invoke(HttpServletRequest req) {
 
     Map<String, Object> response = new HashMap<>();
+    response.put("success", false);
+    response.put("flag", null);
+    if (req.getHeader("referer") == null) {
+      return response;
+    }
 
     String host = (req.getHeader("host") == null) ? "NULL" : req.getHeader("host");
     String referer = (req.getHeader("referer") == null) ? "NULL" : req.getHeader("referer");
