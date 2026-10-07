@@ -51,11 +51,21 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
   static Map<String, String> userToTomResetLink = new HashMap<>();
   static Map<String, String> usersToTomPassword = Maps.newHashMap();
   static List<String> resetLinks = new ArrayList<>();
+  private record ResetGrant(String owner, String email, java.time.Instant expiresAt) {}
+  private static final Map<String, ResetGrant> resetGrants = new java.util.concurrent.ConcurrentHashMap<>();
+
+  static void registerResetLink(String token, String owner, String email) {
+    resetGrants.put(token, new ResetGrant(owner, email, java.time.Instant.now().plusSeconds(900)));
+  }
+
+  static void revokeResetLink(String token) {
+    resetGrants.remove(token);
+  }
 
   static final String TEMPLATE =
       """
       Hi, you requested a password reset link, please use this <a target='_blank'
-       href='http://%s/WebGoat/PasswordReset/reset/reset-password/%s'>link</a> to reset your
+       href='%s/PasswordReset/reset/reset-password/%s'>link</a> to reset your
        password.
 
       If you did not request this password change you can ignore this message.
@@ -84,7 +94,8 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
   @GetMapping("/PasswordReset/reset/reset-password/{link}")
   public ModelAndView resetPassword(@PathVariable(value = "link") String link, Model model) {
     ModelAndView modelAndView = new ModelAndView();
-    if (ResetLinkAssignment.resetLinks.contains(link)) {
+    ResetGrant grant = resetGrants.get(link);
+    if (grant != null && grant.expiresAt().isAfter(java.time.Instant.now())) {
       PasswordChangeForm form = new PasswordChangeForm();
       form.setResetLink(link);
       model.addAttribute("form", form);
@@ -103,10 +114,6 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
       BindingResult bindingResult,
       @CurrentUsername String username) {
     ModelAndView modelAndView = new ModelAndView();
-    if (form.getResetLink() != null) {
-      modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
-      return modelAndView;
-    }
     if (!hasText(form.getPassword())) {
       bindingResult.rejectValue("password", "not.empty");
     }
@@ -114,11 +121,14 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
       modelAndView.setViewName(VIEW_FORMATTER.formatted("password_reset"));
       return modelAndView;
     }
-    if (!resetLinks.contains(form.getResetLink())) {
+    ResetGrant grant = form.getResetLink() == null ? null : resetGrants.get(form.getResetLink());
+    if (grant == null || !grant.owner().equals(username)
+        || !grant.expiresAt().isAfter(java.time.Instant.now())
+        || !resetGrants.remove(form.getResetLink(), grant)) {
       modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
       return modelAndView;
     }
-    if (checkIfLinkIsFromTom(form.getResetLink(), username)) {
+    if (TOM_EMAIL.equals(grant.email())) {
       usersToTomPassword.put(username, form.getPassword());
     }
     modelAndView.setViewName(VIEW_FORMATTER.formatted("success"));

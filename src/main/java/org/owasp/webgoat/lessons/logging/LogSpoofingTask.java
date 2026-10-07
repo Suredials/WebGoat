@@ -31,9 +31,6 @@ public class LogSpoofingTask implements AssignmentEndpoint {
     if (username.contains("<p>") || username.contains("<div>")) {
       return failed(this).output("Try to think of something simple ").build();
     }
-    if (username.indexOf("<br/>") < username.indexOf("admin")) {
-      return success(this).output(username).build();
-    }
-    return failed(this).output(username).build();
+    return failed(this).output(org.springframework.web.util.HtmlUtils.htmlEscape(username)).build();
   }
 }

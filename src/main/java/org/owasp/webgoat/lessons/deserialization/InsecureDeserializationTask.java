@@ -32,7 +32,9 @@ public class InsecureDeserializationTask implements AssignmentEndpoint {
   @PostMapping("/InsecureDeserialization/task")
   @ResponseBody
   public AttackResult completed(@RequestParam String token) throws IOException {
-    if (token != null) return failed(this).feedback("insecure-deserialization.invalidversion").build();
+    if (token == null || token.length() > 16384) {
+      return failed(this).feedback("insecure-deserialization.invalidversion").build();
+    }
     String b64token;
     long before;
     long after;
@@ -42,6 +44,16 @@ public class InsecureDeserializationTask implements AssignmentEndpoint {
 
     try (ObjectInputStream ois =
         new ObjectInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(b64token)))) {
+      ois.setObjectInputFilter(info -> {
+        if (info.depth() > 4 || info.references() > 16 || info.streamBytes() > 12288) {
+          return java.io.ObjectInputFilter.Status.REJECTED;
+        }
+        Class<?> type = info.serialClass();
+        if (type == null) return java.io.ObjectInputFilter.Status.UNDECIDED;
+        return type == String.class
+            ? java.io.ObjectInputFilter.Status.ALLOWED
+            : java.io.ObjectInputFilter.Status.REJECTED;
+      });
       before = System.currentTimeMillis();
       Object o = ois.readObject();
       if (!(o instanceof VulnerableTaskHolder)) {

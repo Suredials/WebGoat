@@ -34,8 +34,7 @@ public class JWTSecretKeyEndpoint implements AssignmentEndpoint {
   public static final String[] SECRETS = {
     "victory", "business", "available", "shipping", "washington"
   };
-  public static final String JWT_SECRET =
-      TextCodec.BASE64.encode(SECRETS[new Random().nextInt(SECRETS.length)]);
+  public static final String JWT_SECRET = TokenSigningKeys.generate();
   private static final String WEBGOAT_USER = "WebGoat";
   private static final List<String> expectedClaims =
       List.of("iss", "iat", "exp", "aud", "sub", "username", "Email", "Role");
@@ -59,7 +58,6 @@ public class JWTSecretKeyEndpoint implements AssignmentEndpoint {
   @PostMapping("/JWT/secret")
   @ResponseBody
   public AttackResult login(@RequestParam String token) {
-    if (token != null) return failed(this).feedback("jwt-invalid-token").build();
     try {
       Jwt jwt = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token);
       Claims claims = (Claims) jwt.getBody();
