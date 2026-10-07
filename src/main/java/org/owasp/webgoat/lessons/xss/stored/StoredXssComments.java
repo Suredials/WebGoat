@@ -80,14 +80,11 @@ public class StoredXssComments implements AssignmentEndpoint {
     comment.setDateTime(LocalDateTime.now().format(fmt));
     comment.setUser(username);
 
+    comment.setText(org.springframework.web.util.HtmlUtils.htmlEscape(comment.getText()));
     comments.add(comment);
     userComments.put(username, comments);
 
-    if (comment.getText().contains(phoneHomeString)) {
-      return (success(this).feedback("xss-stored-comment-success").build());
-    } else {
-      return (failed(this).feedback("xss-stored-comment-failure").build());
-    }
+    return failed(this).feedback("xss-stored-comment-failure").build();
   }
 
   private Comment parseJson(String comment) {

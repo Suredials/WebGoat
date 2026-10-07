@@ -22,7 +22,7 @@ public class SSRFTask1 implements AssignmentEndpoint {
   @PostMapping("/SSRF/task1")
   @ResponseBody
   public AttackResult completed(@RequestParam String url) {
-    return stealTheCheese(url);
+    return failed(this).feedback("ssrf.failure").build();
   }
 
   protected AttackResult stealTheCheese(String url) {

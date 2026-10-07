@@ -27,7 +27,7 @@ public class SSRFTask2 implements AssignmentEndpoint {
   @PostMapping("/SSRF/task2")
   @ResponseBody
   public AttackResult completed(@RequestParam String url) {
-    return furBall(url);
+    return getFailedResult("External requests are not allowed");
   }
 
   protected AttackResult furBall(String url) {

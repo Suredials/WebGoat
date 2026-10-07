@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -48,7 +49,12 @@ public class ProfileUploadBase implements AssignmentEndpoint {
     File uploadDirectory = cleanupAndCreateDirectoryForUser(username);
 
     try {
-      var uploadedFile = new File(uploadDirectory, fullName);
+      Path uploadRoot = uploadDirectory.toPath().toRealPath();
+      Path destination = uploadRoot.resolve(fullName).normalize();
+      if (!destination.startsWith(uploadRoot) || destination.getParent() == null) {
+        return failed(this).feedback("path-traversal-profile-attempt").build();
+      }
+      var uploadedFile = destination.toFile();
       uploadedFile.createNewFile();
       FileCopyUtils.copy(file.getBytes(), uploadedFile);
 
