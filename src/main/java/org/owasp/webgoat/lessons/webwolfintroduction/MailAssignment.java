@@ -72,7 +72,7 @@ public class MailAssignment implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(@RequestParam String uniqueCode, @CurrentUsername String username) {
     if (uniqueCode.equals(StringUtils.reverse(username))) {
-      return success(this).build();
+      return failed(this).feedbackArgs("webwolf.code_incorrect").build();
     } else {
       return failed(this).feedbackArgs("webwolf.code_incorrect").feedbackArgs(uniqueCode).build();
     }

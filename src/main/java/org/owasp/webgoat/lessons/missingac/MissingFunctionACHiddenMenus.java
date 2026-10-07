@@ -29,7 +29,7 @@ public class MissingFunctionACHiddenMenus implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(String hiddenMenu1, String hiddenMenu2) {
     if (hiddenMenu1.equals("Users") && hiddenMenu2.equals("Config")) {
-      return success(this).output("").feedback("access-control.hidden-menus.success").build();
+      return failed(this).output("").feedback("access-control.hidden-menus.failure").build();
     }
 
     if (hiddenMenu1.equals("Config") && hiddenMenu2.equals("Users")) {

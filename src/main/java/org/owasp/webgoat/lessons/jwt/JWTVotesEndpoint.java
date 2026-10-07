@@ -180,6 +180,7 @@ public class JWTVotesEndpoint implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult resetVotes(
       @CookieValue(value = "access_token", required = false) String accessToken) {
+    if (!StringUtils.isEmpty(accessToken)) return failed(this).feedback("jwt-invalid-token").build();
     if (StringUtils.isEmpty(accessToken)) {
       return failed(this).feedback("jwt-invalid-token").build();
     } else {

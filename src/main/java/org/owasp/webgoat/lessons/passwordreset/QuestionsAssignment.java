@@ -42,6 +42,8 @@ public class QuestionsAssignment implements AssignmentEndpoint {
     String securityQuestion = (String) json.getOrDefault("securityQuestion", "");
     String username = (String) json.getOrDefault("username", "");
 
+    if ("admin".equalsIgnoreCase(username)) return failed(this).build();
+
     if ("webgoat".equalsIgnoreCase(username.toLowerCase())) {
       return failed(this).feedback("password-questions-wrong-user").build();
     }

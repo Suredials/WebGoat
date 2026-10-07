@@ -84,6 +84,7 @@ public class JWTRefreshEndpoint implements AssignmentEndpoint {
   @ResponseBody
   public ResponseEntity<AttackResult> checkout(
       @RequestHeader(value = "Authorization", required = false) String token) {
+    if (token != null) return ok(failed(this).feedback("jwt-invalid-token").build());
     if (token == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }

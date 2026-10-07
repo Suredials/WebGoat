@@ -43,10 +43,7 @@ public class IDORViewOwnProfileAltUrl implements AssignmentEndpoint {
             && urlParts[2].equals("profile")
             && urlParts[3].equals(authUserId)) {
           UserProfile userProfile = new UserProfile(authUserId);
-          return success(this)
-              .feedback("idor.view.own.profile.success")
-              .output(userProfile.profileToMap().toString())
-              .build();
+          return failed(this).feedback("idor.view.own.profile.failure1").build();
         } else {
           return failed(this).feedback("idor.view.own.profile.failure1").build();
         }

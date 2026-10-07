@@ -47,6 +47,9 @@ public class VerifyAccount implements AssignmentEndpoint {
       throws ServletException, IOException {
     AccountVerificationHelper verificationHelper = new AccountVerificationHelper();
     Map<String, String> submittedAnswers = parseSecQuestions(req);
+    if (!submittedAnswers.keySet().containsAll(List.of("secQuestion0", "secQuestion1"))) {
+      return failed(this).feedback("verify-account.failed").build();
+    }
     if (verificationHelper.didUserLikelylCheat((HashMap) submittedAnswers)) {
       return failed(this)
           .feedback("verify-account.cheated")

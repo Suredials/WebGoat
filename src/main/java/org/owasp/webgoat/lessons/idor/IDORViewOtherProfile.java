@@ -53,10 +53,7 @@ public class IDORViewOtherProfile implements AssignmentEndpoint {
         // the requested profile
         if (requestedProfile.getUserId() != null
             && requestedProfile.getUserId().equals("2342388")) {
-          return success(this)
-              .feedback("idor.view.profile.success")
-              .output(requestedProfile.profileToMap().toString())
-              .build();
+          return failed(this).feedback("idor.view.profile.close1").build();
         } else {
           return failed(this).feedback("idor.view.profile.close1").build();
         }

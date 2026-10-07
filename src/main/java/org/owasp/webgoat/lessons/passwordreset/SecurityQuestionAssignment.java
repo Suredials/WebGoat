@@ -80,6 +80,7 @@ public class SecurityQuestionAssignment implements AssignmentEndpoint {
   @PostMapping("/PasswordReset/SecurityQuestions")
   @ResponseBody
   public AttackResult completed(@RequestParam String question) {
+    if (question != null) return informationMessage(this).build();
     var answer = of(questions.get(question));
     if (answer.isPresent()) {
       triedQuestions.incr(question);

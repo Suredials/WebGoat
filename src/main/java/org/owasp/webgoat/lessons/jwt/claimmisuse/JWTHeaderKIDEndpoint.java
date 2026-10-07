@@ -56,6 +56,7 @@ public class JWTHeaderKIDEndpoint implements AssignmentEndpoint {
 
   @PostMapping("kid/delete")
   public @ResponseBody AttackResult resetVotes(@RequestParam("token") String token) {
+    if (!StringUtils.isEmpty(token)) return failed(this).feedback("jwt-invalid-token").build();
     if (StringUtils.isEmpty(token)) {
       return failed(this).feedback("jwt-invalid-token").build();
     } else {

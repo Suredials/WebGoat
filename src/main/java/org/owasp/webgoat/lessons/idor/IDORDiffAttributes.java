@@ -35,7 +35,7 @@ public class IDORDiffAttributes implements AssignmentEndpoint {
             && diffAttribs[1].toLowerCase().trim().equals("role")
         || diffAttribs[1].toLowerCase().trim().equals("userid")
             && diffAttribs[0].toLowerCase().trim().equals("role")) {
-      return success(this).feedback("idor.diff.success").build();
+      return failed(this).feedback("idor.diff.failure").build();
     } else {
       return failed(this).feedback("idor.diff.failure").build();
     }
