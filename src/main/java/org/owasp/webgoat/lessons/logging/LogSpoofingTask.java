@@ -24,6 +24,9 @@ public class LogSpoofingTask implements AssignmentEndpoint {
     if (Strings.isEmpty(username)) {
       return failed(this).output(username).build();
     }
+    if (username.contains("\r") || username.contains("\n")) {
+      return failed(this).output(username.replace("\r", "").replace("\n", "")).build();
+    }
     username = username.replace("\r", "").replace("\n", "");
     if (username.contains("<p>") || username.contains("<div>")) {
       return failed(this).output("Try to think of something simple ").build();
