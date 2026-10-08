@@ -11,7 +11,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.TextCodec;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,7 +34,8 @@ public class JWTSecretKeyEndpoint implements AssignmentEndpoint {
     "victory", "business", "available", "shipping", "washington"
   };
   public static final String JWT_SECRET = TokenSigningKeys.generate();
-  private static final String NON_AUTHENTICATING_SAMPLE_SECRET = TextCodec.BASE64.encode(SECRETS[0]);
+  private static final byte[] NON_AUTHENTICATING_SAMPLE_SECRET =
+      SECRETS[0].getBytes(StandardCharsets.UTF_8);
   private static final String WEBGOAT_USER = "WebGoat";
   private static final List<String> expectedClaims =
       List.of("iss", "iat", "exp", "aud", "sub", "username", "Email", "Role");
