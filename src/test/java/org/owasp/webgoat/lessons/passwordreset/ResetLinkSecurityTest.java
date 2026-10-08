@@ -5,25 +5,50 @@
 package org.owasp.webgoat.lessons.passwordreset;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verify;
 
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.owasp.webgoat.lessons.passwordreset.resetlink.PasswordChangeForm;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.client.RestTemplate;
 
 class ResetLinkSecurityTest {
   @Test
-  void resetLinkCannotBeRequestedForAnotherUser() {
+  void resetLinkCanOnlyBeRedeemedByTheEmailOwner() {
     RestTemplate restTemplate = mock(RestTemplate.class);
     ResetLinkAssignmentForgotPassword endpoint =
         new ResetLinkAssignmentForgotPassword(restTemplate, "http://localhost:9090/mail");
+    endpoint.sendPasswordResetLink(ResetLinkAssignment.TOM_EMAIL);
+    ArgumentCaptor<PasswordResetEmail> mail = ArgumentCaptor.forClass(PasswordResetEmail.class);
+    verify(restTemplate).postForEntity(anyString(), mail.capture(), eq(Object.class));
 
-    assertThat(endpoint.sendPasswordResetLink(ResetLinkAssignment.TOM_EMAIL, "webgoat").isLessonCompleted())
-        .isFalse();
-    verifyNoInteractions(restTemplate);
+    Matcher linkMatcher = Pattern.compile("reset-password/([0-9a-f-]{36})")
+        .matcher(mail.getValue().getContents());
+    assertThat(linkMatcher.find()).isTrue();
+    String resetLink = linkMatcher.group(1);
+
+    ResetLinkAssignment assignment = new ResetLinkAssignment();
+    PasswordChangeForm form = new PasswordChangeForm();
+    form.setResetLink(resetLink);
+    form.setPassword("new-secret");
+    BindingResult binding = mock(BindingResult.class);
+
+    assertThat(assignment.changePassword(form, binding, "webgoat").getViewName())
+        .endsWith("password_link_not_found.html");
+    assertThat(ResetLinkAssignment.usersToTomPassword).doesNotContainKey("webgoat");
+    assertThat(assignment.changePassword(form, binding, "tom").getViewName())
+        .endsWith("success.html");
+    assertThat(assignment.login("new-secret", ResetLinkAssignment.TOM_EMAIL, "tom")
+            .isLessonCompleted())
+        .isTrue();
+    ResetLinkAssignment.usersToTomPassword.remove("tom");
   }
 
   @Test

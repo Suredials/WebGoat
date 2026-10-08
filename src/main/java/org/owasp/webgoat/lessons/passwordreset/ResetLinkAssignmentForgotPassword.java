@@ -8,7 +8,6 @@ import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
 import java.util.UUID;
-import org.owasp.webgoat.container.CurrentUsername;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AttackResult;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,18 +41,14 @@ public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
 
   @PostMapping("/PasswordReset/ForgotPassword/create-password-reset-link")
   @ResponseBody
-  public AttackResult sendPasswordResetLink(
-      @RequestParam String email, @CurrentUsername String username) {
+  public AttackResult sendPasswordResetLink(@RequestParam String email) {
     if (email == null || !email.matches("[^@\\s]+@[^@\\s]+")) {
       return failed(this).build();
     }
     String requestedUsername = email.substring(0, email.indexOf('@'));
-    if (!requestedUsername.equalsIgnoreCase(username)) {
-      return failed(this).build();
-    }
 
     String resetLink = UUID.randomUUID().toString();
-    ResetLinkAssignment.registerResetLink(resetLink, username, email);
+    ResetLinkAssignment.registerResetLink(resetLink, requestedUsername, email);
     try {
       sendMailToUser(email, trustedResetBaseUrl, resetLink);
     } catch (Exception e) {
