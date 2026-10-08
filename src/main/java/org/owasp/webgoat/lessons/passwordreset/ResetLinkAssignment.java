@@ -56,10 +56,12 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
 
   static void registerResetLink(String token, String owner, String email) {
     resetGrants.put(token, new ResetGrant(owner, email, java.time.Instant.now().plusSeconds(900)));
+    resetLinks.add(token);
   }
 
   static void revokeResetLink(String token) {
     resetGrants.remove(token);
+    resetLinks.remove(token);
   }
 
   static final String TEMPLATE =
@@ -128,6 +130,7 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
       modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
       return modelAndView;
     }
+    resetLinks.remove(form.getResetLink());
     if (TOM_EMAIL.equals(grant.email())) {
       usersToTomPassword.put(username, form.getPassword());
     }

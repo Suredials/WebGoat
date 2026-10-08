@@ -5,8 +5,6 @@
 package org.owasp.webgoat.lessons.passwordreset;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -16,6 +14,7 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.owasp.webgoat.lessons.passwordreset.resetlink.PasswordChangeForm;
+import org.springframework.http.HttpMethod;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,13 +23,18 @@ class ResetLinkSecurityTest {
   void resetLinkCanOnlyBeRedeemedByTheEmailOwner() {
     RestTemplate restTemplate = mock(RestTemplate.class);
     ResetLinkAssignmentForgotPassword endpoint =
-        new ResetLinkAssignmentForgotPassword(restTemplate, "http://localhost:9090/mail");
+        new ResetLinkAssignmentForgotPassword(
+            restTemplate,
+            "http://127.0.0.1:9090/WebWolf",
+            "http://127.0.0.1:9090/WebWolf/mail");
     endpoint.sendPasswordResetLink(ResetLinkAssignment.TOM_EMAIL);
-    ArgumentCaptor<PasswordResetEmail> mail = ArgumentCaptor.forClass(PasswordResetEmail.class);
-    verify(restTemplate).postForEntity(anyString(), mail.capture(), eq(Object.class));
+    ArgumentCaptor<String> callbackUrl = ArgumentCaptor.forClass(String.class);
+    verify(restTemplate)
+        .exchange(callbackUrl.capture(), org.mockito.ArgumentMatchers.eq(HttpMethod.GET),
+            org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq(Void.class));
 
     Matcher linkMatcher = Pattern.compile("reset-password/([0-9a-f-]{36})")
-        .matcher(mail.getValue().getContents());
+        .matcher(callbackUrl.getValue());
     assertThat(linkMatcher.find()).isTrue();
     String resetLink = linkMatcher.group(1);
 

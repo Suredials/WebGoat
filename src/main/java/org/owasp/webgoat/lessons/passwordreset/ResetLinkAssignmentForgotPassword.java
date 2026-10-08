@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AttackResult;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
 
   private final RestTemplate restTemplate;
+  private final String webWolfURL;
   private final String webWolfMailURL;
 
   @Value("${webgoat.url}")
@@ -34,8 +36,10 @@ public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
 
   public ResetLinkAssignmentForgotPassword(
       RestTemplate restTemplate,
+      @Value("${webwolf.url}") String webWolfURL,
       @Value("${webwolf.mail.url}") String webWolfMailURL) {
     this.restTemplate = restTemplate;
+    this.webWolfURL = webWolfURL;
     this.webWolfMailURL = webWolfMailURL;
   }
 
@@ -49,6 +53,12 @@ public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
 
     String resetLink = UUID.randomUUID().toString();
     ResetLinkAssignment.registerResetLink(resetLink, requestedUsername, email);
+
+    if (ResetLinkAssignment.TOM_EMAIL.equalsIgnoreCase(email)) {
+      simulateRecipientClick(resetLink);
+      return failed(this).feedback("email.send").feedbackArgs(email).build();
+    }
+
     try {
       sendMailToUser(email, trustedResetBaseUrl, resetLink);
     } catch (Exception e) {
@@ -70,6 +80,18 @@ public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
             .recipient(username)
             .build();
     this.restTemplate.postForEntity(webWolfMailURL, mail, Object.class);
+  }
+
+  private void simulateRecipientClick(String resetLink) {
+    try {
+      restTemplate.exchange(
+          "%s/PasswordReset/reset/reset-password/%s".formatted(webWolfURL, resetLink),
+          HttpMethod.GET,
+          null,
+          Void.class);
+    } catch (Exception ignored) {
+      // The simulated recipient click is best-effort and must not invalidate the reset request.
+    }
   }
 
 }
