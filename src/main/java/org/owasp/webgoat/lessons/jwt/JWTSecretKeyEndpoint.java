@@ -16,7 +16,6 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AssignmentHints;
 import org.owasp.webgoat.container.assignments.AttackResult;
@@ -35,6 +34,7 @@ public class JWTSecretKeyEndpoint implements AssignmentEndpoint {
     "victory", "business", "available", "shipping", "washington"
   };
   public static final String JWT_SECRET = TokenSigningKeys.generate();
+  private static final String NON_AUTHENTICATING_SAMPLE_SECRET = TextCodec.BASE64.encode(SECRETS[0]);
   private static final String WEBGOAT_USER = "WebGoat";
   private static final List<String> expectedClaims =
       List.of("iss", "iat", "exp", "aud", "sub", "username", "Email", "Role");
@@ -51,7 +51,9 @@ public class JWTSecretKeyEndpoint implements AssignmentEndpoint {
         .claim("username", "Tom")
         .claim("Email", "tom@webgoat.org")
         .claim("Role", new String[] {"Manager", "Project Administrator"})
-        .signWith(SignatureAlgorithm.HS256, JWT_SECRET)
+        // Keep a crackable lesson sample, but the login endpoint only trusts the
+        // independent runtime key above. Recovering this sample key cannot forge a login.
+        .signWith(SignatureAlgorithm.HS256, NON_AUTHENTICATING_SAMPLE_SECRET)
         .compact();
   }
 

@@ -5,13 +5,16 @@
 package org.owasp.webgoat.lessons.jwt;
 
 import static io.jsonwebtoken.SignatureAlgorithm.HS512;
+import static io.jsonwebtoken.SignatureAlgorithm.HS256;
 import static org.hamcrest.Matchers.is;
 import static org.owasp.webgoat.lessons.jwt.JWTSecretKeyEndpoint.JWT_SECRET;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.impl.TextCodec;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -107,6 +110,22 @@ public class JWTSecretKeyEndpointTest extends LessonTest {
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.feedback", CoreMatchers.is(messages.getMessage("jwt-invalid-token"))));
+  }
+
+  @Test
+  void crackableSampleKeyCannotForgeAnAcceptedLogin() {
+    String sample = new JWTSecretKeyEndpoint().getSecretToken();
+    Claims claims = Jwts.parser()
+        .setSigningKey(TextCodec.BASE64.encode(JWTSecretKeyEndpoint.SECRETS[0]))
+        .parseClaimsJws(sample)
+        .getBody();
+    claims.put("username", "WebGoat");
+    String forged = Jwts.builder()
+        .setClaims(claims)
+        .signWith(HS256, TextCodec.BASE64.encode(JWTSecretKeyEndpoint.SECRETS[0]))
+        .compact();
+
+    assertFalse(new JWTSecretKeyEndpoint().login(forged).isLessonCompleted());
   }
 
   @Test

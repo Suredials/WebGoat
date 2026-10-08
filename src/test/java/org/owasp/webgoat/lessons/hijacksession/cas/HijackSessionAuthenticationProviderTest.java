@@ -36,6 +36,17 @@ class HijackSessionAuthenticationProviderTest {
   }
 
   @Test
+  void generatedSessionIdsIncludeAnUnpredictableSuffix() {
+    String firstId = provider.authenticate(null).getId();
+    String secondId = provider.authenticate(null).getId();
+    String uuidSuffix = "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
+
+    assertThat(firstId.matches("\\d+-\\d+-" + uuidSuffix), is(true));
+    assertThat(secondId.matches("\\d+-\\d+-" + uuidSuffix), is(true));
+    assertThat(firstId, not(is(secondId)));
+  }
+
+  @Test
   void testAuthenticated() {
     String id = "anyId";
     provider.addSession(id);

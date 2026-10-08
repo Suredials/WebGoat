@@ -6,13 +6,26 @@ package org.owasp.webgoat.lessons.passwordreset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.owasp.webgoat.lessons.passwordreset.resetlink.PasswordChangeForm;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.validation.BindingResult;
 
 class ResetLinkSecurityTest {
+  @Test
+  void resetLinkCannotBeRequestedForAnotherUser() {
+    RestTemplate restTemplate = mock(RestTemplate.class);
+    ResetLinkAssignmentForgotPassword endpoint =
+        new ResetLinkAssignmentForgotPassword(restTemplate, "http://localhost:9090/mail");
+
+    assertThat(endpoint.sendPasswordResetLink(ResetLinkAssignment.TOM_EMAIL, "webgoat").isLessonCompleted())
+        .isFalse();
+    verifyNoInteractions(restTemplate);
+  }
+
   @Test
   void resetTokenIsBoundToOwnerAndConsumedOnce() {
     ResetLinkAssignment assignment = new ResetLinkAssignment();
